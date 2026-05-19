@@ -71,6 +71,27 @@
     },
   ];
 
+  const enabledServices = { discord: true, linear: true, spotify: true };
+
+  try {
+    chrome.storage.sync.get("enabled", (data) => {
+      if (data && data.enabled) {
+        for (const k of Object.keys(enabledServices)) {
+          if (data.enabled[k] !== undefined) enabledServices[k] = !!data.enabled[k];
+        }
+      }
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== "sync" || !changes.enabled) return;
+      const next = changes.enabled.newValue || {};
+      for (const k of Object.keys(enabledServices)) {
+        if (next[k] !== undefined) enabledServices[k] = !!next[k];
+      }
+    });
+  } catch (e) {
+    // chrome.storage not available — fall back to defaults (all on)
+  }
+
   function findDeeplink(rawUrl) {
     let u;
     try {
@@ -80,6 +101,7 @@
     }
     if (u.protocol !== "http:" && u.protocol !== "https:") return null;
     for (const svc of services) {
+      if (!enabledServices[svc.name]) continue;
       if (svc.match(u)) return svc.deeplink(rawUrl);
     }
     return null;

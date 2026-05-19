@@ -25,6 +25,24 @@ const LINEAR_WORKSPACE_SEGMENTS = new Set([
   "settings",
 ]);
 
+const enabledServices = { discord: true, linear: true, spotify: true };
+
+chrome.storage.sync.get("enabled", (data) => {
+  if (data && data.enabled) {
+    for (const k of Object.keys(enabledServices)) {
+      if (data.enabled[k] !== undefined) enabledServices[k] = !!data.enabled[k];
+    }
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== "sync" || !changes.enabled) return;
+  const next = changes.enabled.newValue || {};
+  for (const k of Object.keys(enabledServices)) {
+    if (next[k] !== undefined) enabledServices[k] = !!next[k];
+  }
+});
+
 function findDeeplink(rawUrl) {
   let u;
   try {
@@ -36,23 +54,25 @@ function findDeeplink(rawUrl) {
 
   const host = u.hostname.replace(/^www\./, "");
 
-  if (host === "discord.com" || host === "discordapp.com") {
-    if (/^\/(channels|invite|events|template)\//.test(u.pathname)) {
+  if (enabledServices.discord) {
+    if (host === "discord.com" || host === "discordapp.com") {
+      if (/^\/(channels|invite|events|template)\//.test(u.pathname)) {
+        return "discord://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
+      }
+    }
+    if (host === "discord.gg" && u.pathname.length > 1) {
       return "discord://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
     }
   }
-  if (host === "discord.gg" && u.pathname.length > 1) {
-    return "discord://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
-  }
 
-  if (host === "linear.app") {
+  if (enabledServices.linear && host === "linear.app") {
     const parts = u.pathname.split("/").filter(Boolean);
     if (parts.length >= 2 && LINEAR_WORKSPACE_SEGMENTS.has(parts[1])) {
       return "linear://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
     }
   }
 
-  if (host === "open.spotify.com") {
+  if (enabledServices.spotify && host === "open.spotify.com") {
     const parts = u.pathname.split("/").filter(Boolean);
     if (parts.length >= 2 && SPOTIFY_TYPES.has(parts[0])) {
       return "spotify:" + parts.join(":");

@@ -12,6 +12,7 @@ No tracking, no telemetry, no remote calls. Pure URL-scheme rewriting on the cli
 - **Modifier-key bypass** — hold ⌘ / Ctrl / Shift / Alt while clicking to open in the browser as normal
 - **Middle-click support** — auxclick is redirected too
 - **Web client safe** — the script does not run on `discord.com`, `linear.app`, or `open.spotify.com` themselves, so the web apps keep working
+- **Per-service toggle** — turn any service off from the toolbar popup if you don't have its desktop app installed (settings sync across devices via `chrome.storage.sync`)
 - **Zero dependencies, zero network calls**
 
 ## Installation
@@ -90,7 +91,8 @@ Also add the host to:
 manifest.json   Manifest V3 config
 content.js      Click interceptor with per-service rewrite rules
 background.js   Service worker handling external navigations
-popup.html      Toolbar popup with status and test links
+popup.html      Toolbar popup with per-service toggle UI
+popup.js        Toggle state load / save against chrome.storage.sync
 icons/          16, 48, 128 px PNGs
 ```
 
@@ -100,6 +102,7 @@ The extension requests:
 
 - `webNavigation` — to intercept full-page navigations before they reach the network
 - `tabs` — to redirect tabs to deep-link URLs
+- `storage` — to persist the per-service on/off toggles
 - Host access to `discord.com`, `discord.gg`, `linear.app`, `open.spotify.com`
 
 No content of any web page is read or stored.

@@ -6,7 +6,7 @@
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        width: 300px;
+        width: 280px;
         margin: 0;
         padding: 14px 16px;
         background: #1e1f22;
@@ -14,65 +14,109 @@
       }
       h1 {
         font-size: 14px;
-        margin: 0 0 8px;
-        color: #fff;
-      }
-      p {
-        font-size: 12px;
-        line-height: 1.45;
-        margin: 0 0 10px;
-        color: #b5bac1;
-      }
-      ul {
-        font-size: 12px;
-        line-height: 1.5;
         margin: 0 0 12px;
-        padding-left: 18px;
-        color: #b5bac1;
-      }
-      ul code {
-        color: #dbdee1;
-        background: #2b2d31;
-        padding: 1px 4px;
-        border-radius: 3px;
-      }
-      .tests {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
-      }
-      .tests a {
-        padding: 6px 8px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 11px;
-        text-align: center;
         color: #fff;
       }
-      .discord { background: #5865f2; }
-      .linear { background: #5e6ad2; }
-      .spotify { background: #1db954; }
-      .tests a:hover { filter: brightness(0.9); }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        background: #2b2d31;
+        border-radius: 6px;
+        margin-bottom: 6px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .label {
+        flex: 1;
+        font-size: 13px;
+        color: #dbdee1;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 32px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #4e5058;
+        border-radius: 18px;
+        transition: background 0.15s;
+      }
+      .slider::before {
+        content: "";
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        left: 2px;
+        top: 2px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform 0.15s;
+      }
+      .switch input:checked + .slider::before {
+        transform: translateX(14px);
+      }
+      .row[data-service="discord"] .switch input:checked + .slider { background: #5865f2; }
+      .row[data-service="linear"] .switch input:checked + .slider { background: #5e6ad2; }
+      .row[data-service="spotify"] .switch input:checked + .slider { background: #1db954; }
       .hint {
-        margin-top: 10px;
+        margin: 10px 2px 0;
         font-size: 11px;
+        line-height: 1.4;
         color: #80848e;
       }
     </style>
   </head>
   <body>
     <h1>Desktop Link Opener</h1>
-    <p>Active. Clicks on these services open in the desktop app:</p>
-    <ul>
-      <li><code>discord.com</code>, <code>discord.gg</code></li>
-      <li><code>linear.app</code></li>
-      <li><code>open.spotify.com</code></li>
-    </ul>
-    <div class="tests">
-      <a class="discord" href="https://discord.com/channels/@me" target="_blank">Discord</a>
-      <a class="linear" href="https://linear.app/" target="_blank">Linear</a>
-      <a class="spotify" href="https://open.spotify.com/" target="_blank">Spotify</a>
+
+    <div class="row" data-service="discord">
+      <span class="dot" style="background: #5865f2"></span>
+      <span class="label">Discord</span>
+      <label class="switch">
+        <input type="checkbox" id="t-discord" />
+        <span class="slider"></span>
+      </label>
     </div>
-    <p class="hint">Hold ⌘ / Ctrl while clicking to bypass and open in the browser.</p>
+
+    <div class="row" data-service="linear">
+      <span class="dot" style="background: #5e6ad2"></span>
+      <span class="label">Linear</span>
+      <label class="switch">
+        <input type="checkbox" id="t-linear" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row" data-service="spotify">
+      <span class="dot" style="background: #1db954"></span>
+      <span class="label">Spotify</span>
+      <label class="switch">
+        <input type="checkbox" id="t-spotify" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <p class="hint">
+      Turn off any service you don't have the desktop app for.<br />
+      Hold ⌘ / Ctrl while clicking to bypass an enabled service.
+    </p>
+
+    <script src="popup.js"></script>
   </body>
 </html>
