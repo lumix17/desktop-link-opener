@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Desktop Link Opener",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Opens Discord, Linear and Spotify links in their desktop apps — handles both in-page clicks and external navigations. Per-service toggle in popup.",
   "permissions": ["webNavigation", "tabs", "storage"],
   "host_permissions": [

@@ -82,51 +82,13 @@ function findDeeplink(rawUrl) {
   return null;
 }
 
-const closeAfterRedirect = new Set();
-
-function isBlankTabUrl(url) {
-  if (!url) return true;
-  return (
-    url === "about:blank" ||
-    url.startsWith("chrome://newtab") ||
-    url.startsWith("chrome://startpage") ||
-    url.startsWith("edge://newtab")
-  );
-}
-
-chrome.tabs.onCreated.addListener((tab) => {
-  const target = tab.pendingUrl || tab.url || "";
-  if (!findDeeplink(target)) return;
-  closeAfterRedirect.add(tab.id);
-});
-
-chrome.tabs.onRemoved.addListener((tabId) => {
-  closeAfterRedirect.delete(tabId);
-});
-
 chrome.webNavigation.onBeforeNavigate.addListener(
   (details) => {
     if (details.frameId !== 0) return;
     const deeplink = findDeeplink(details.url);
     if (!deeplink) return;
-
-    chrome.tabs.get(details.tabId, (tab) => {
-      if (chrome.runtime.lastError || !tab) return;
-
-      const fromOnCreated = closeAfterRedirect.has(details.tabId);
-      const fromBlankTab = isBlankTabUrl(tab.url);
-      const shouldClose = fromOnCreated || fromBlankTab;
-      closeAfterRedirect.delete(details.tabId);
-
-      chrome.tabs.update(details.tabId, { url: deeplink }, () => {
-        void chrome.runtime.lastError;
-        if (!shouldClose) return;
-        setTimeout(() => {
-          chrome.tabs.remove(details.tabId, () => {
-            void chrome.runtime.lastError;
-          });
-        }, 800);
-      });
+    chrome.tabs.update(details.tabId, { url: deeplink }, () => {
+      void chrome.runtime.lastError;
     });
   },
   {
