@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Desktop Link Opener</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        width: 300px;
+        margin: 0;
+        padding: 14px 16px;
+        background: #1e1f22;
+        color: #dbdee1;
+      }
+      h1 {
+        font-size: 14px;
+        margin: 0 0 8px;
+        color: #fff;
+      }
+      p {
+        font-size: 12px;
+        line-height: 1.45;
+        margin: 0 0 10px;
+        color: #b5bac1;
+      }
+      ul {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0 0 12px;
+        padding-left: 18px;
+        color: #b5bac1;
+      }
+      ul code {
+        color: #dbdee1;
+        background: #2b2d31;
+        padding: 1px 4px;
+        border-radius: 3px;
+      }
+      .tests {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+      .tests a {
+        padding: 6px 8px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 11px;
+        text-align: center;
+        color: #fff;
+      }
+      .discord { background: #5865f2; }
+      .linear { background: #5e6ad2; }
+      .spotify { background: #1db954; }
+      .tests a:hover { filter: brightness(0.9); }
+      .hint {
+        margin-top: 10px;
+        font-size: 11px;
+        color: #80848e;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Desktop Link Opener</h1>
+    <p>Active. Clicks on these services open in the desktop app:</p>
+    <ul>
+      <li><code>discord.com</code>, <code>discord.gg</code></li>
+      <li><code>linear.app</code></li>
+      <li><code>open.spotify.com</code></li>
+    </ul>
+    <div class="tests">
+      <a class="discord" href="https://discord.com/channels/@me" target="_blank">Discord</a>
+      <a class="linear" href="https://linear.app/" target="_blank">Linear</a>
+      <a class="spotify" href="https://open.spotify.com/" target="_blank">Spotify</a>
+    </div>
+    <p class="hint">Hold ⌘ / Ctrl while clicking to bypass and open in the browser.</p>
+  </body>
+</html>

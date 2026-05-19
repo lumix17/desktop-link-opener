@@ -1,0 +1,122 @@
+const SPOTIFY_TYPES = new Set([
+  "track",
+  "album",
+  "artist",
+  "playlist",
+  "show",
+  "episode",
+  "user",
+]);
+
+const LINEAR_WORKSPACE_SEGMENTS = new Set([
+  "issue",
+  "team",
+  "project",
+  "view",
+  "inbox",
+  "roadmap",
+  "document",
+  "initiative",
+  "cycle",
+  "label",
+  "member",
+  "my-views",
+  "my-issues",
+  "settings",
+]);
+
+function findDeeplink(rawUrl) {
+  let u;
+  try {
+    u = new URL(rawUrl);
+  } catch (e) {
+    return null;
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+
+  const host = u.hostname.replace(/^www\./, "");
+
+  if (host === "discord.com" || host === "discordapp.com") {
+    if (/^\/(channels|invite|events|template)\//.test(u.pathname)) {
+      return "discord://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
+    }
+  }
+  if (host === "discord.gg" && u.pathname.length > 1) {
+    return "discord://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
+  }
+
+  if (host === "linear.app") {
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (parts.length >= 2 && LINEAR_WORKSPACE_SEGMENTS.has(parts[1])) {
+      return "linear://" + rawUrl.substring(rawUrl.indexOf("://") + 3);
+    }
+  }
+
+  if (host === "open.spotify.com") {
+    const parts = u.pathname.split("/").filter(Boolean);
+    if (parts.length >= 2 && SPOTIFY_TYPES.has(parts[0])) {
+      return "spotify:" + parts.join(":");
+    }
+  }
+
+  return null;
+}
+
+const closeAfterRedirect = new Set();
+
+function isBlankTabUrl(url) {
+  if (!url) return true;
+  return (
+    url === "about:blank" ||
+    url.startsWith("chrome://newtab") ||
+    url.startsWith("chrome://startpage") ||
+    url.startsWith("edge://newtab")
+  );
+}
+
+chrome.tabs.onCreated.addListener((tab) => {
+  const target = tab.pendingUrl || tab.url || "";
+  if (!findDeeplink(target)) return;
+  closeAfterRedirect.add(tab.id);
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  closeAfterRedirect.delete(tabId);
+});
+
+chrome.webNavigation.onBeforeNavigate.addListener(
+  (details) => {
+    if (details.frameId !== 0) return;
+    const deeplink = findDeeplink(details.url);
+    if (!deeplink) return;
+
+    chrome.tabs.get(details.tabId, (tab) => {
+      if (chrome.runtime.lastError || !tab) return;
+
+      const fromOnCreated = closeAfterRedirect.has(details.tabId);
+      const fromBlankTab = isBlankTabUrl(tab.url);
+      const shouldClose = fromOnCreated || fromBlankTab;
+      closeAfterRedirect.delete(details.tabId);
+
+      chrome.tabs.update(details.tabId, { url: deeplink }, () => {
+        void chrome.runtime.lastError;
+        if (!shouldClose) return;
+        setTimeout(() => {
+          chrome.tabs.remove(details.tabId, () => {
+            void chrome.runtime.lastError;
+          });
+        }, 800);
+      });
+    });
+  },
+  {
+    url: [
+      { hostEquals: "discord.com" },
+      { hostEquals: "www.discord.com" },
+      { hostEquals: "discordapp.com" },
+      { hostEquals: "discord.gg" },
+      { hostEquals: "linear.app" },
+      { hostEquals: "open.spotify.com" },
+    ],
+  }
+);

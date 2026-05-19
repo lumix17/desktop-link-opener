@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Desktop Link Opener",
+  "version": "1.0.0",
+  "description": "Opens Discord, Linear and Spotify links in their desktop apps — handles both in-page clicks and external navigations.",
+  "permissions": ["webNavigation", "tabs"],
+  "host_permissions": [
+    "*://discord.com/*",
+    "*://*.discord.com/*",
+    "*://discord.gg/*",
+    "*://linear.app/*",
+    "*://*.linear.app/*",
+    "*://open.spotify.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "*://discord.com/*",
+        "*://*.discord.com/*",
+        "*://discordapp.com/*",
+        "*://*.discordapp.com/*",
+        "*://linear.app/*",
+        "*://*.linear.app/*",
+        "*://open.spotify.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_title": "Desktop Link Opener",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
